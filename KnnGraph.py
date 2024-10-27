@@ -73,7 +73,7 @@ class KnnGraph:
       
       return adj_matrix
 
-   def __adj_matrix_to_edge_list(self)->list[tuple]:
+   def get_edge_list(self)->list[tuple]:
     edge_list = []
     for i in range(len(self.__adj_matrix)):
         for j in range(len(self.__adj_matrix[i])):
@@ -88,7 +88,7 @@ class KnnGraph:
       import networkx as nx
       import matplotlib.pyplot as plt
 
-      edge_list = self.__adj_matrix_to_edge_list()
+      edge_list = self.get_edge_list()
       graph = nx.DiGraph()
       graph.add_weighted_edges_from(edge_list)
       nx.draw(graph)
