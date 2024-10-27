@@ -91,7 +91,14 @@ class KnnGraph:
       edge_list = self.get_edge_list()
       graph = nx.DiGraph()
       graph.add_weighted_edges_from(edge_list)
-      nx.draw(graph)
+
+      pos = nx.spring_layout(graph)  # Layout for positioning the nodes
+      nx.draw(graph, pos, with_labels=True, node_color="lightblue", node_size=700, font_size=10)
+      nx.draw_networkx_edges(graph, pos, edgelist=graph.edges(), width=1.0, alpha=0.5)
+
+      edge_labels = nx.get_edge_attributes(graph, 'weight')
+      formatted_edge_labels = {(u, v): f"{d:.2f}" for (u, v), d in edge_labels.items()}  # Format to 2 decimal places
+      nx.draw_networkx_edge_labels(graph, pos, edge_labels=formatted_edge_labels)
       plt.show()
 
    def vertex_exists(self,vertex_num:int)->bool:
@@ -102,4 +109,4 @@ class KnnGraph:
 
 if __name__ == "__main__":
    graph_ = KnnGraph(10,2)
-   #graph_.plot_graph()
+   graph_.plot_graph()
