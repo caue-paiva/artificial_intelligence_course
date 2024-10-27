@@ -1,4 +1,6 @@
 from KnnGraph import KnnGraph
+import heapq
+from dataclasses import dataclass
 
 class GraphSearch:
 
@@ -67,6 +69,55 @@ class GraphSearch:
 
       return [] #não achou o caminho
 
+   def dijkstra(self,start_vertex:int,end_vertex:int)->list[int]:
+      INF = float('inf')
+      @dataclass
+      class VertexInfo:
+         parent:int = -1
+         weight:float = INF
+         explored:bool = False
+
+      vertex_list:list[VertexInfo] = [VertexInfo() for x in range(self.__n)] #
+      vertex_list[start_vertex].weight = 0 #atualiza o peso do primeiro cara
+      path_found: bool = False
+      adj_matrix:list[list[float]] = self.__graph.get_adj_matrix()
+
+      heap:list[tuple[float,int]] = []
+      heapq.heappush(heap,(0,start_vertex))
+
+      while heap:
+         cur_weight,cur_index, = heapq.heappop(heap) #pop vertice com menor peso
+         cur_vertex:VertexInfo = vertex_list[cur_index] #acha o objeto vertex associado
+
+         if cur_vertex.explored: #ja foi explorado
+            continue
+         
+         cur_vertex.explored = True #marca como explorado
+         if cur_index == end_vertex: #vertice final
+            path_found = True
+            break
+
+         for vertex_index,weight in enumerate(adj_matrix[cur_index]): #loop pelos vizinhos
+            if weight != self.__graph.NO_EDGE and not vertex_list[vertex_index].explored: #aresta existe e não visitamos o vértice ainda
+               new_dist = cur_vertex.weight + adj_matrix[cur_index][vertex_index] #distancia do nó pai + aresta
+               old_dist = vertex_list[vertex_index].weight #distancia antiga
+
+               if new_dist < old_dist: #nova distancia é menor que a anterior
+                  vertex_list[vertex_index].parent = cur_index #atualiza parente
+                  vertex_list[vertex_index].weight = new_dist #atualiza distancia
+                  heapq.heappush(heap,(new_dist,vertex_index)) #push na heap de uma tupla com o novo peso e o index do vertice antigo
+
+      if path_found:
+         path = []
+         cur = end_vertex
+         while cur != -1:
+            path.append(cur)
+            cur = vertex_list[cur].parent
+         path.reverse()
+         return path
+      else:
+         return []
+      
    def plot_path(self,path:list[int])->None:
       if not path:
          print("Caminho vazio, não é possível desenhar")
@@ -100,9 +151,11 @@ class GraphSearch:
 
       # Show the plot
       plt.show()
+
+
 if __name__ == "__main__":
    graph = KnnGraph(10,2)
    search = GraphSearch(graph)
 
-   bfs_walk = search.bfs(0,7)
+   bfs_walk = search.dijkstra(0,7)
    search.plot_path(bfs_walk)
