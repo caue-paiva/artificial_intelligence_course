@@ -107,6 +107,19 @@ class KnnGraph:
       """
       return False if vertex_num < 0 or vertex_num >= self.n else True
 
+   def euclidian_dist_between(self,vertex1:int,vertex2:int)->float:
+      """
+      Dado 2 vértices que devem pertencer ao grafo, retorna a distância euclidiana de ambos
+      """
+      if not self.vertex_exists(vertex1) or not self.vertex_exists(vertex2):
+         raise Exception("Vértice 1 e/ou Vértice 2 não existem no grafo")
+      internal_vertex1:KnnVertex = self.__vertex_list[vertex1]
+      internal_vertex2:KnnVertex = self.__vertex_list[vertex2]
+
+      return self.__euclidian_dist(
+         internal_vertex1.x, internal_vertex1.y, internal_vertex2.x, internal_vertex2.y
+      )
+
 if __name__ == "__main__":
    graph_ = KnnGraph(10,2)
    graph_.plot_graph()
