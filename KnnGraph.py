@@ -10,7 +10,7 @@ class KnnVertex:
 
 class KnnGraph:
 
-   __NO_EDGE = -1 #const para representar a não existencia de uma aresta
+   NO_EDGE = -1 #const para representar a não existencia de uma aresta
 
    n:int  # numero de vertices
    k:int  # cada vértice conectados ao k vizinhos mais próximos
@@ -20,6 +20,12 @@ class KnnGraph:
    __vertex_list: list[KnnVertex] #lista dos vértices e suas posições
 
    def __init__(self,n:int,k:int, func_distancia:Callable[[float,float,float,float],float] | None = None) -> None:
+      if (n <= 0):
+         raise Exception("n não pode ser igual ou menor que 0")
+      if (k <= 0):
+         raise Exception("k não pode ser igual ou menor que 0")
+      if (k > n):
+         raise Exception("k não pode ser maior que n")
       self.n = n
       self.k = k
 
@@ -52,7 +58,7 @@ class KnnGraph:
                main_vertex.x, main_vertex.y, neighbor.x, neighbor.y
             )
       
-      adj_matrix:list[list[float]] = [ [self.__NO_EDGE for y in range(self.n)] for x in range(self.n)] #inicia matriz de adjacência
+      adj_matrix:list[list[float]] = [ [self.NO_EDGE for y in range(self.n)] for x in range(self.n)] #inicia matriz de adjacência
 
       for index,vertex in enumerate(self.__vertex_list):
          
@@ -81,12 +87,18 @@ class KnnGraph:
    def plot_graph(self)->None:
       import networkx as nx
       import matplotlib.pyplot as plt
-      
+
       edge_list = self.__adj_matrix_to_edge_list()
       graph = nx.DiGraph()
       graph.add_weighted_edges_from(edge_list)
       nx.draw(graph)
       plt.show()
+
+   def vertex_exists(self,vertex_num:int)->bool:
+      """
+      Numero do Vertice entre 0 e n-1
+      """
+      return False if vertex_num < 0 or vertex_num >= self.n else True
 
 if __name__ == "__main__":
    graph_ = KnnGraph(10,2)
