@@ -96,7 +96,7 @@ class GraphSearch:
          if cur_index == end_vertex: #vertice final
             path_found = True
             break
-
+         #relaxamento
          for vertex_index,weight in enumerate(adj_matrix[cur_index]): #loop pelos vizinhos
             if weight != self.__graph.NO_EDGE and not vertex_list[vertex_index].explored: #aresta existe e não visitamos o vértice ainda
                new_dist = cur_vertex.weight + adj_matrix[cur_index][vertex_index] #distancia do nó pai + aresta
