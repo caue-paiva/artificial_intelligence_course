@@ -124,7 +124,6 @@ class GraphSearch:
       else:
          return []
          
-
    def dijkstra(self,start_vertex:int,end_vertex:int)->list[int]:
       return self.__weighted_graph_search(start_vertex,end_vertex)
       
@@ -203,11 +202,58 @@ class GraphSearch:
       else:
          return []
          
+   def best_first(self,start_vertex:int,end_vertex:int)->list[int]:
+      search_heuristic_fn: Callable[[int, int], float] = self.__graph.euclidian_dist_between
+      INF = float('inf')
+      @dataclass
+      class VertexInfo:
+         parent:int = -1
+         weight:float = INF
+         explored:bool = False
+
+      vertex_list:list[VertexInfo] = [VertexInfo() for x in range(self.__n)] #
+      vertex_list[start_vertex].weight = 0 #atualiza o peso do primeiro cara
+      path_found: bool = False
+      adj_matrix:list[list[float]] = self.__graph.get_adj_matrix()
+
+      heap:list[tuple[float,int]] = []
+      heapq.heappush(heap,(0,start_vertex))
+      parent_vertex:int = -1
+
+      while heap:
+         cur_weight,cur_index, = heapq.heappop(heap) #pop vertice com menor peso
+         cur_vertex:VertexInfo = vertex_list[cur_index] #acha o objeto vertex associado
+         cur_vertex.parent = parent_vertex
+         parent_vertex = cur_index
+
+         if cur_vertex.explored: #ja foi explorado
+            continue
+         
+         cur_vertex.explored = True #marca como explorado
+         if cur_index == end_vertex: #vertice final
+            path_found = True
+            break
+         #relaxamento
+         for vertex_index,weight in enumerate(adj_matrix[cur_index]): #loop pelos vizinhos
+            if weight != self.__graph.NO_EDGE and not vertex_list[vertex_index].explored: #aresta existe e não visitamos o vértice ainda
+               heuristic_weight:float = search_heuristic_fn(vertex_index,end_vertex)
+               heapq.heappush(heap,(heuristic_weight,vertex_index)) #push na heap de uma tupla com o novo peso e o index do vertice antigo
+
+      if path_found:
+         path = []
+         cur = end_vertex
+         while cur != -1:
+            path.append(cur)
+            cur = vertex_list[cur].parent
+         path.reverse()
+         return path
+      else:
+         return []
 
 
 if __name__ == "__main__":
    graph = KnnGraph(10,2)
    search = GraphSearch(graph)
 
-   bfs_walk = search.hill_climbing(0,7)
+   bfs_walk = search.best_first(0,7)
    search.plot_path(bfs_walk)
