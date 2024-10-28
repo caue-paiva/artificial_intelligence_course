@@ -86,6 +86,8 @@ class KnnGraph:
 
    def plot_graph(self)->None:
       import networkx as nx
+      import matplotlib
+      matplotlib.use('Qt5Agg')
       import matplotlib.pyplot as plt
 
       edge_list = self.get_edge_list()

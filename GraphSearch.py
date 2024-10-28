@@ -137,7 +137,7 @@ class GraphSearch:
          return
       import networkx as nx
       import matplotlib
-      matplotlib.use('TkAgg') 
+      matplotlib.use('Qt5Agg') 
       import matplotlib.pyplot as plt
 
       graph = nx.DiGraph()  # Use DiGraph for directed graphs
