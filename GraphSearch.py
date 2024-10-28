@@ -136,39 +136,78 @@ class GraphSearch:
          print("Caminho não existe, não é possível desenhar")
          return
       import networkx as nx
+      import matplotlib
+      matplotlib.use('TkAgg') 
       import matplotlib.pyplot as plt
+
       graph = nx.DiGraph()  # Use DiGraph for directed graphs
       graph.add_weighted_edges_from(self.__graph.get_edge_list())
 
       # Step 2: Generate the path edges from the list of vertices
       path_edges = [(path[i], path[i + 1]) for i in range(len(path) - 1)]
 
-      # Step 3: Draw the entire graph
       pos = nx.spring_layout(graph)  # Layout for positioning the nodes
 
-      # Draw all nodes
       nx.draw(graph, pos, with_labels=True, node_color="lightblue", node_size=700, font_size=10)
 
-      # Draw all edges with default settings
       nx.draw_networkx_edges(graph, pos, edgelist=graph.edges(), width=1.0, alpha=0.5)
 
-      # Step 4: Highlight the path
       nx.draw_networkx_edges(graph, pos, edgelist=path_edges, width=2.5, edge_color="red", style="solid", arrowstyle="-|>", arrowsize=25)
 
-      # Highlight the path nodes (optional)
       nx.draw_networkx_nodes(graph, pos, nodelist=path, node_color="yellow", node_size=800)
 
       edge_labels = nx.get_edge_attributes(graph, 'weight')
       formatted_edge_labels = {(u, v): f"{d:.2f}" for (u, v), d in edge_labels.items()}  # Format to 2 decimal places
       nx.draw_networkx_edge_labels(graph, pos, edge_labels=formatted_edge_labels)
 
-      # Show the plot
       plt.show()
+      
+   def hill_climbing(self,start_vertex:int,end_vertex:int)->list[int]:
+      parent_of:list[int] = [-1 for x in range(self.__n)] #lista de parentes para reconstruir caminho
+      adj_matrix:list[list[float]] = self.__graph.get_adj_matrix() # pega a lista de adjacência
+      cur_vertex:int = start_vertex #começamos no vertice inicial
+      visited:list[bool] = [False for x in range(self.__n)]
+      
+      path_found = False #flag para dizer se a busca teve sucesso
+      while True:
+         if cur_vertex == end_vertex: #chegamos no final
+            path_found =  True
+            break
+
+         visited[cur_vertex] = True
+         children:list[tuple[int,float]] = list(
+            filter(lambda x: x[1] != self.__graph.NO_EDGE and not visited[x[0]], #filtra pelos filhos não visitados e com arestas válidas
+                  enumerate(adj_matrix[cur_vertex])
+            )                                             
+         ) #filhos são uma lista de tupla (index vertice,peso/dist da aresta)
+         if not children: #não tem aresta filho, busca acabou
+            break
+         
+         children_dist_to_goal:list[tuple[int,float]] = list( #vai ser uma lista de tuplas (index vertice, dist para objetivo)
+            map(lambda x: (x[0], self.__graph.euclidian_dist_between(x[0],end_vertex)),children)
+         )
+         children_sorted = sorted(children_dist_to_goal,key=lambda x: x[1]) #ordena pela distancia até no final
+         best_children:int = children_sorted[0][0] #index do melhor filho   
+         parent_of[best_children] = cur_vertex
+         cur_vertex = best_children
+      
+      if path_found:
+         cur = end_vertex
+         path = []
+
+         while cur != -1:
+            path.append(cur)
+            cur = parent_of[cur]
+         path.reverse()
+         return path
+      else:
+         return []
+         
 
 
 if __name__ == "__main__":
    graph = KnnGraph(10,2)
    search = GraphSearch(graph)
 
-   bfs_walk = search.dijkstra(0,7)
+   bfs_walk = search.hill_climbing(0,7)
    search.plot_path(bfs_walk)
