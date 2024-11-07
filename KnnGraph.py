@@ -70,6 +70,7 @@ class KnnGraph:
 
          for neigh_index,distance in k_nearest:
             adj_matrix[index][neigh_index] = distance
+            adj_matrix[neigh_index][index] = distance
       
       return adj_matrix
 
@@ -90,8 +91,8 @@ class KnnGraph:
       matplotlib.use('Qt5Agg')
       import matplotlib.pyplot as plt
 
-      edge_list = self.get_edge_list()
-      graph = nx.DiGraph()
+      edge_list = self.get_edge_list()  # Assuming this returns (node1, node2, weight) tuples
+      graph = nx.Graph()  # Use undirected Graph instead of DiGraph
       graph.add_weighted_edges_from(edge_list)
 
       pos = nx.spring_layout(graph)  # Layout for positioning the nodes
@@ -101,6 +102,7 @@ class KnnGraph:
       edge_labels = nx.get_edge_attributes(graph, 'weight')
       formatted_edge_labels = {(u, v): f"{d:.2f}" for (u, v), d in edge_labels.items()}  # Format to 2 decimal places
       nx.draw_networkx_edge_labels(graph, pos, edge_labels=formatted_edge_labels)
+      
       plt.show()
 
    def vertex_exists(self,vertex_num:int)->bool:
