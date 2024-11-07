@@ -136,10 +136,10 @@ class GraphSearch:
          return
       import networkx as nx
       import matplotlib
-      matplotlib.use('Qt5Agg') 
+      matplotlib.use('Qt5Agg')
       import matplotlib.pyplot as plt
 
-      graph = nx.DiGraph()  # Use DiGraph for directed graphs
+      graph = nx.Graph()  # Use Graph for undirected graphs
       graph.add_weighted_edges_from(self.__graph.get_edge_list())
 
       # Step 2: Generate the path edges from the list of vertices
@@ -147,14 +147,19 @@ class GraphSearch:
 
       pos = nx.spring_layout(graph)  # Layout for positioning the nodes
 
+      # Draw the graph with node labels
       nx.draw(graph, pos, with_labels=True, node_color="lightblue", node_size=700, font_size=10)
 
+      # Draw all edges in light blue
       nx.draw_networkx_edges(graph, pos, edgelist=graph.edges(), width=1.0, alpha=0.5)
 
-      nx.draw_networkx_edges(graph, pos, edgelist=path_edges, width=2.5, edge_color="red", style="solid", arrowstyle="-|>", arrowsize=25)
+      # Highlight path edges in red, thicker, no arrow style for undirected graph
+      nx.draw_networkx_edges(graph, pos, edgelist=path_edges, width=2.5, edge_color="red", style="solid")
 
+      # Highlight path nodes in yellow
       nx.draw_networkx_nodes(graph, pos, nodelist=path, node_color="yellow", node_size=800)
 
+      # Draw edge labels with formatted weights
       edge_labels = nx.get_edge_attributes(graph, 'weight')
       formatted_edge_labels = {(u, v): f"{d:.2f}" for (u, v), d in edge_labels.items()}  # Format to 2 decimal places
       nx.draw_networkx_edge_labels(graph, pos, edge_labels=formatted_edge_labels)
@@ -255,5 +260,5 @@ if __name__ == "__main__":
    graph = KnnGraph(10,2)
    search = GraphSearch(graph)
 
-   bfs_walk = search.best_first(0,7)
+   bfs_walk = search.bfs(0,7)
    search.plot_path(bfs_walk)
